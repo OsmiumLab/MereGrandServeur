@@ -18,8 +18,7 @@ public class RSA implements ICipher {
             keyPairGenerator.initialize(2048,secureRandom);
             keyPair = keyPairGenerator.generateKeyPair();
             cipher = Cipher.getInstance("RSA");
-            cipher.init(Cipher.ENCRYPT_MODE, keyPair.getPublic());
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException e) {
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
             throw new RuntimeException(e);
         }
     }
@@ -27,15 +26,21 @@ public class RSA implements ICipher {
     @Override
     public byte[] cipher(byte[] bytes) {
         try {
+            cipher.init(Cipher.ENCRYPT_MODE, keyPair.getPublic());
             return cipher.doFinal(bytes);
-        } catch (IllegalBlockSizeException | BadPaddingException e) {
+        } catch (IllegalBlockSizeException | BadPaddingException | InvalidKeyException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
     public byte[] decipher(byte[] bytes) {
-        // TODO
-        return null;
+        try {
+            cipher.init(Cipher.ENCRYPT_MODE, keyPair.getPrivate());
+            return cipher.doFinal(bytes);
+        } catch (IllegalBlockSizeException | BadPaddingException | InvalidKeyException e) {
+            throw new RuntimeException(e);
+        }
     }
+
 }
