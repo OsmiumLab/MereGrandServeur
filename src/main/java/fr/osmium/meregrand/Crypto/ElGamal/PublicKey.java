@@ -1,4 +1,4 @@
-package fr.osmium.meregrand.Crypto;
+package fr.osmium.meregrand.Crypto.ElGamal;
 
 import java.io.Serializable;
 import java.math.BigInteger;
