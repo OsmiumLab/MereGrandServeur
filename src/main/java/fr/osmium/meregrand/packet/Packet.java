@@ -1,4 +1,4 @@
-package fr.osmium.meregrand.Paquet;
+package fr.osmium.meregrand.packet;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -6,7 +6,7 @@ import java.io.Serializable;
 public abstract class Packet implements Serializable {
 
     @Serial
-    private  static  final  long serialVersionUID =  1350092881346723535L;
+    private static final long serialVersionUID = 1350092881346723535L;
 
     private final PacketType packetType;
 
@@ -14,13 +14,12 @@ public abstract class Packet implements Serializable {
         this.packetType = packetType;
     }
 
-    public PacketType getType(){
+    public PacketType getType() {
         return packetType;
     }
 
-    public enum PacketType{
-        AUTHPACKET,SENDMESSAGE
+    public enum PacketType {
+        AUTH_PACKET, SEND_MESSAGE, TOKEN_SEND
     }
 
-    public abstract String toString();
 }

@@ -1,46 +1,42 @@
 package fr.osmium.meregrand.cipher;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import java.security.*;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
 
 public class RSA implements ICipher {
 
-    private final KeyPair keyPair;
-    private final Cipher cipher;
+    private BigInteger modulus;
+    private BigInteger privateKey;
+    private BigInteger publicKey;
 
-    public RSA() {
-        try {
-            final KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-            final SecureRandom secureRandom = new SecureRandom();
-            keyPairGenerator.initialize(2048,secureRandom);
-            keyPair = keyPairGenerator.generateKeyPair();
-            cipher = Cipher.getInstance("RSA");
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-            throw new RuntimeException(e);
-        }
+    public RSA(int bits) {
+        generateKeys(bits);
+    }
+
+    public synchronized void generateKeys(int bits) {
+        final SecureRandom r = new SecureRandom();
+        final BigInteger p = new BigInteger(bits / 2, 100, r);
+        final BigInteger q = new BigInteger(bits / 2, 100, r);
+        modulus = p.multiply(q);
+
+        final BigInteger m = (p.subtract(BigInteger.ONE)).multiply(q.subtract(BigInteger.ONE));
+
+        publicKey = BigInteger.valueOf(3L);
+
+        while (m.gcd(publicKey).intValue() > 1)
+            publicKey = publicKey.add(BigInteger.valueOf(2L));
+        privateKey = publicKey.modInverse(m);
     }
 
     @Override
-    public byte[] cipher(byte[] bytes) {
-        try {
-            cipher.init(Cipher.ENCRYPT_MODE, keyPair.getPublic());
-            return cipher.doFinal(bytes);
-        } catch (IllegalBlockSizeException | BadPaddingException | InvalidKeyException e) {
-            throw new RuntimeException(e);
-        }
+    public String cipher(String message) {
+        return (new BigInteger(message.getBytes(StandardCharsets.UTF_8))).modPow(publicKey, modulus).toString();
     }
 
     @Override
-    public byte[] decipher(byte[] bytes) {
-        try {
-            cipher.init(Cipher.ENCRYPT_MODE, keyPair.getPrivate());
-            return cipher.doFinal(bytes);
-        } catch (IllegalBlockSizeException | BadPaddingException | InvalidKeyException e) {
-            throw new RuntimeException(e);
-        }
+    public String decipher(String message) {
+        return new String((new BigInteger(message)).modPow(privateKey, modulus).toByteArray());
     }
 
 }

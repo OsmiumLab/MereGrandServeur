@@ -1,10 +1,7 @@
 package fr.osmium.meregrand;
 
 import com.sun.jdi.OpaqueFrameException;
-import fr.osmium.meregrand.Paquet.AUTHPACKET;
-import fr.osmium.meregrand.Paquet.Packet;
 
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -23,7 +20,7 @@ public class ClientHandler extends Thread {
 
     @Override
     public void run() {
-        try {
+        /*try {
 
             ServiceManager.LOGGER.info("Client connected");
             Packet packet = (Packet) in.readObject();
@@ -42,6 +39,6 @@ public class ClientHandler extends Thread {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
-        }
+        }*/
     }
 }

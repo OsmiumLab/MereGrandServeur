@@ -2,7 +2,7 @@ package fr.osmium.meregrand.cipher;
 
 public interface ICipher {
 
-    byte[] cipher(byte[] bytes);
-    byte[] decipher(byte[] bytes);
+    String cipher(String message);
+    String decipher(String message);
 
 }
