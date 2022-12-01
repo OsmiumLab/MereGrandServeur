@@ -4,10 +4,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import java.security.InvalidKeyException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
 
 public class RSA implements ICipher {
 
@@ -16,7 +13,10 @@ public class RSA implements ICipher {
 
     public RSA() {
         try {
-            keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+            final KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+            final SecureRandom secureRandom = new SecureRandom();
+            keyPairGenerator.initialize(2048,secureRandom);
+            keyPair = keyPairGenerator.generateKeyPair();
             cipher = Cipher.getInstance("RSA");
             cipher.init(Cipher.ENCRYPT_MODE, keyPair.getPublic());
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException e) {
