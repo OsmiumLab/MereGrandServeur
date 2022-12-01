@@ -1,5 +1,7 @@
 package fr.osmium.meregrand;
 
+import fr.osmium.meregrand.cipher.RSA;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -9,6 +11,8 @@ import java.util.logging.Logger;
 
 public class ServiceManager {
 
+
+    private RSA rsa;
     public final static Logger LOGGER = Logger.getLogger("MereGrandServer");
 
     private static final int PORT = 6969;
@@ -30,6 +34,10 @@ public class ServiceManager {
     public static ServiceManager getInstance() {
         if (instance == null) instance = new ServiceManager();
         return instance;
+    }
+
+    public RSA getRsa(){
+        return rsa;
     }
 
     public void shutdown() {

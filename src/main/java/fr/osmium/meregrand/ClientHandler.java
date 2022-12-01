@@ -1,14 +1,13 @@
 package fr.osmium.meregrand;
 
-import com.sun.jdi.OpaqueFrameException;
 import fr.osmium.meregrand.packet.AuthPacket;
 import fr.osmium.meregrand.packet.Packet;
-import fr.osmium.meregrand.packet.SendMessagePacket;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.UUID;
 
 public class ClientHandler extends Thread {
 
@@ -40,21 +39,9 @@ public class ClientHandler extends Thread {
                     //else
                     //message d'erreur
                 }
-                case SEND_MESSAGE -> {
-                    SendMessagePacket packetSend = (SendMessagePacket) packet;
-                    try{
-                        Socket client = new Socket(packetSend.getIpDest(),packetSend.getPortDest());
-                        ObjectOutputStream out = new ObjectOutputStream(client.getOutputStream());
-                        out.writeObject(packetSend);
-                    }catch(IOException e){
-                        e.printStackTrace();
-                    }
-                }
             }
-        } catch (IOException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
         }
     }
 }
