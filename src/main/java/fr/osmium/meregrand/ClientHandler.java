@@ -1,24 +1,28 @@
 package fr.osmium.meregrand;
 
-import java.io.DataInputStream;
-import java.io.DataOutput;
-import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-public class ClientHandler extends Thread{
+public class ClientHandler extends Thread {
 
-    private Socket clientSocket;
-    private DataOutputStream dOut;
-    private DataInputStream dIn;
+    private final Socket clientSocket;
+    private final ObjectOutputStream out;
+    private final ObjectInputStream in;
 
-    public ClientHandler(Socket clientSocket, DataOutputStream dOut, DataInputStream dIn) {
+    public ClientHandler(Socket clientSocket, ObjectOutputStream out, ObjectInputStream in) {
         this.clientSocket = clientSocket;
-        this.dOut = dOut;
-        this.dIn = dIn;
+        this.out = out;
+        this.in = in;
     }
 
     @Override
     public void run() {
-
+        try {
+            ServiceManager.LOGGER.info("Client connected");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

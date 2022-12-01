@@ -1,72 +1,68 @@
 package fr.osmium.meregrand;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOError;
-import java.io.IOException;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 public class ServiceManager {
 
+    public final static Logger LOGGER = Logger.getLogger("MereGrandServer");
+
+    private static final int PORT = 6969;
+
     private boolean isRunning = false;
     private ServerSocket serverSocket;
-    private Socket currentSocketClient;
-    private int port = 6969;
+
     private static ServiceManager instance = null;
 
+    final ExecutorService executorService = Executors.newFixedThreadPool(32);
 
-    ExecutorService executorService = Executors.newFixedThreadPool(32);
-
-    private ServiceManager(){
-        try{
-            serverSocket = new ServerSocket(6969);
-        }catch(IOException e){
+    private ServiceManager() {
+        try {
+            serverSocket = new ServerSocket(PORT);
+        } catch(IOException e) {
             e.printStackTrace();
         }
     }
-    public ServiceManager getInstance() {
-        if(instance == null){
-            instance = new ServiceManager();
-        }
+    public static ServiceManager getInstance() {
+        if (instance == null) instance = new ServiceManager();
         return instance;
     }
 
-
-    public void shutdown(){
+    public void shutdown() {
         isRunning = false;
     }
 
-    public void run(){
-        if(isRunning){
-            return;
-        }
+    public void run() {
+        if (isRunning) return;
         isRunning = true;
-        while(isRunning){
-            try{
-                currentSocketClient = serverSocket.accept();
-            }catch(IOException e){
+        LOGGER.info("Server is running...");
+        while (isRunning) {
+            try {
+                final Socket currentSocketClient = serverSocket.accept();
+                handleClientRequest(currentSocketClient);
+            } catch(IOException e) {
                 e.printStackTrace();
             }
-
-            if(currentSocketClient != null){
-
-            }
+        }
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
     private void handleClientRequest(Socket socketClient){
         try {
-
-            DataInputStream din = new DataInputStream(socketClient.getInputStream());
-            DataOutputStream dout = new DataOutputStream(socketClient.getOutputStream());
-            ClientHandler c = new ClientHandler(socketClient,dout,din);
+            final ObjectOutputStream out = new ObjectOutputStream(socketClient.getOutputStream());
+            final ObjectInputStream in = new ObjectInputStream(socketClient.getInputStream());
+            final ClientHandler c = new ClientHandler(socketClient, out, in);
             executorService.execute(c);
-        }catch(IOException e){
+        } catch(IOException e){
             e.printStackTrace();
         }
     }
-
 
 }
