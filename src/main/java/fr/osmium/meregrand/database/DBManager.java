@@ -108,5 +108,30 @@ public class DBManager {
         }
         return null;
     }
+    
+    public void updateSignature(String mail, String signature){
+        String request="UPDATE User SET signature=? WHERE email=?";
+        try (PreparedStatement statement = connect.prepareStatement(request)) {
+            statement.setString(1, signature);
+            statement.setString(2, mail);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String getSignature(String mail){
+        String request="SELECT signature FROM User WHERE email=?";
+        try (PreparedStatement statement = connect.prepareStatement(request)) {
+            statement.setString(1, mail);
+            try(ResultSet result=statement.executeQuery()){
+                result.next();
+                return result.getString(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
 }
