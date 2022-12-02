@@ -1,13 +1,13 @@
 package fr.osmium.meregrand;
 
-import fr.osmium.meregrand.packet.AuthPacket;
-import fr.osmium.meregrand.packet.Packet;
+import fr.osmium.meregrand.cipher.ICipher;
+import fr.osmium.meregrand.cipher.RSA;
+import fr.osmium.meregrand.packet.ExchangePacket;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.UUID;
 
 public class ClientHandler extends Thread {
 
@@ -15,33 +15,34 @@ public class ClientHandler extends Thread {
     private final ObjectOutputStream out;
     private final ObjectInputStream in;
 
+    private final ICipher cipher;
+
+    private String clientPublicKey;
+
     public ClientHandler(Socket clientSocket, ObjectOutputStream out, ObjectInputStream in) {
         this.clientSocket = clientSocket;
         this.out = out;
         this.in = in;
+        this.cipher = new RSA(2048);
     }
 
     @Override
     public void run() {
         try {
-
-            ServiceManager.LOGGER.info("Client connected");
-            Packet packet = (Packet) in.readObject();
-            switch (packet.getType()){
-                case AUTH_PACKET -> {
-                    AuthPacket packetAuth = (AuthPacket) packet;
-                    String mail = packetAuth.getMail();
-                    String mdp = packetAuth.getPassword();
-
-                    //if(verifPassword()){
-                    // Creation du jeton et envois du jeton via JetonPacket
-                    //}
-                    //else
-                    //message d'erreur
-                }
-            }
+            ServiceManager.LOGGER.info("Client connected to server");
+            swapPublicKeys();
+            out.writeObject("Client public key: " + clientPublicKey);
+            String s = (String) in.readObject();
+            ServiceManager.LOGGER.info(s);
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
+
+    private void swapPublicKeys() throws IOException, ClassNotFoundException {
+        out.writeObject(new ExchangePacket(cipher.getPublicKey()));
+        ExchangePacket exchangePacket = (ExchangePacket) in.readObject();
+        clientPublicKey = exchangePacket.getPublicKey();
+    }
+
 }

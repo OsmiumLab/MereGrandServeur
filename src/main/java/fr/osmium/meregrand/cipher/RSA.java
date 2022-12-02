@@ -39,4 +39,13 @@ public class RSA implements ICipher {
         return new String((new BigInteger(message)).modPow(privateKey, modulus).toByteArray());
     }
 
+    @Override
+    public String getPublicKey() {
+        return publicKey.toString();
+    }
+
+    @Override
+    public String getPrivateKey() {
+        return privateKey.toString();
+    }
 }
