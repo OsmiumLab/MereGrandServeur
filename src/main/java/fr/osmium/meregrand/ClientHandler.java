@@ -37,7 +37,6 @@ public class ClientHandler extends Thread {
     public void run() {
         try {
             ServiceManager.LOGGER.info("Client connected to server");
-
             switch (in.readObject()) {
                 case RequestServerKeyPacket requestServerKeyPacket -> out.writeObject(new ExchangeKeyPacket(cipher.getPublicKey()));
                 case AuthPacket authPacket -> {
@@ -58,29 +57,27 @@ public class ClientHandler extends Thread {
         try {
             final Algorithm algorithm = Algorithm.RSA256(cipher.getPublicKey(), cipher.getPrivateKey());
 
-            KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             final String publicKeyClientString = DBManager.getInstance().getPublicKey(authPacket.getEmail());
-            EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyClientString.getBytes()); // 100% CA MARCHE PAS
-            RSAPublicKey rsaPublicKey = (RSAPublicKey) keyFactory.generatePublic(keySpec);
-
-            //byte[] decodedKey = Base64.getDecoder().decode(publicKeyClientString);
-            //SecretKey secretKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, "RSA");
-
             final String token = JWT.create()
                     .withIssuer(authPacket.getTargetMail())
                     .withClaim("publicKey", publicKeyClientString)
                     .withClaim("email", authPacket.getEmail())
-                    .withClaim("hash", authPacket.getMessage()).sign(algorithm);
+                    .withClaim("hash", authPacket.getMessage())
+                    .sign(algorithm);
+            final KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             final String publicKeyC2 = DBManager.getInstance().getPublicKey(authPacket.getTargetMail());
-            final SendTokenPacket sendTokenPacket = new SendTokenPacket(token,publicKeyC2);
-            out.writeObject(cipher.cipher(ByteUtils.serialize(sendTokenPacket), rsaPublicKey));
+            EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyC2.getBytes()); // 100% CA MARCHE PAS
+            RSAPublicKey rsaPublicKeyC2 = (RSAPublicKey) keyFactory.generatePublic(keySpec);
+            final String ipTarget = DBManager.getInstance().getIp(authPacket.getTargetMail());
+            final SendTokenPacket sendTokenPacket = new SendTokenPacket(rsaPublicKeyC2, token, ipTarget);
+            out.writeObject(sendTokenPacket);
         } catch(Exception e){
             e.printStackTrace();
         }
 
     }
 
-    private boolean login(AuthPacket authPacket ){
+    private boolean login(AuthPacket authPacket ) {
         String mail = authPacket.getEmail();
         String password = new String(cipher.decipher(authPacket.getPassword()));
         return DatabaseVerifier.getInstance().checkPassword(mail, password);
