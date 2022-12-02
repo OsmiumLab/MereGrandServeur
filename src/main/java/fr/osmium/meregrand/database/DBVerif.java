@@ -34,7 +34,6 @@ public class DBVerif {
     }
 
     public boolean pwdVerif(String mail, String pwd){
-        mail=Sha256.hash(mail);
         if(mailVerif(mail)){
             pwd=Sha256.hash(pwd);
             String request="SELECT password FROM User WHERE email=? AND password=?";
@@ -52,3 +51,4 @@ public class DBVerif {
     }
 
 }
+
