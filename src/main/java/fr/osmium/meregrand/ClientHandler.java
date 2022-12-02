@@ -7,9 +7,8 @@ import fr.osmium.meregrand.cipher.RSA;
 import fr.osmium.meregrand.database.DBManager;
 import fr.osmium.meregrand.database.DatabaseVerifier;
 import fr.osmium.meregrand.packet.*;
+import fr.osmium.meregrand.utils.ByteUtils;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -18,7 +17,6 @@ import java.security.KeyFactory;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
 
 public class ClientHandler extends Thread {
 
@@ -65,8 +63,8 @@ public class ClientHandler extends Thread {
             EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyClientString.getBytes()); // 100% CA MARCHE PAS
             RSAPublicKey rsaPublicKey = (RSAPublicKey) keyFactory.generatePublic(keySpec);
 
-            byte[] decodedKey = Base64.getDecoder().decode(publicKeyClientString);
-            SecretKey secretKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, "RSA");
+            //byte[] decodedKey = Base64.getDecoder().decode(publicKeyClientString);
+            //SecretKey secretKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, "RSA");
 
             final String token = JWT.create()
                     .withIssuer(authPacket.getTargetMail())
@@ -75,7 +73,7 @@ public class ClientHandler extends Thread {
                     .withClaim("hash", authPacket.getMessage()).sign(algorithm);
             final String publicKeyC2 = DBManager.getInstance().getPublicKey(authPacket.getTargetMail());
             final SendTokenPacket sendTokenPacket = new SendTokenPacket(token,publicKeyC2);
-            out.writeObject(cipher.cipher(sendTokenPacket, rsaPublicKey));
+            out.writeObject(cipher.cipher(ByteUtils.serialize(sendTokenPacket), rsaPublicKey));
         } catch(Exception e){
             e.printStackTrace();
         }
