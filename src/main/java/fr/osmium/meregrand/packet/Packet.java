@@ -19,7 +19,7 @@ public abstract class Packet implements Serializable {
     }
 
     public enum PacketType {
-        EXCHANGE_PACKET,AUTHENTIFICATION_PACKET
+        EXCHANGE_PACKET,AUTH_PACKET,TOKEN_SEND
     }
 
 }
