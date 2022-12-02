@@ -37,17 +37,15 @@ public class ClientHandler extends Thread {
     public void run() {
         try {
             ServiceManager.LOGGER.info("Client connected to server");
-            switch (in.readObject()) {
-                case RequestServerKeyPacket requestServerKeyPacket -> out.writeObject(new ExchangeKeyPacket(cipher.getPublicKey()));
-                case AuthPacket authPacket -> {
-                    if (login(authPacket))
-                        createToken(authPacket);
-                    else
-                        out.writeObject(new FailAuthPacket("Wrong email or password"));
-                }
-                case null, default -> ServiceManager.LOGGER.warning("Unknown packet");
+            final Object object = in.readObject();
+            if (object instanceof RequestServerKeyPacket) {
+                out.writeObject(new ExchangeKeyPacket(cipher.getPublicKey()));
+            } else if (object instanceof AuthPacket authPacket) {
+                if (login(authPacket))
+                    createToken(authPacket);
+                else
+                    out.writeObject(new FailAuthPacket("Wrong email or password"));
             }
-
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
