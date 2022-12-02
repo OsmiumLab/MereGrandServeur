@@ -7,7 +7,6 @@ import fr.osmium.meregrand.cipher.RSA;
 import fr.osmium.meregrand.database.DBManager;
 import fr.osmium.meregrand.database.DatabaseVerifier;
 import fr.osmium.meregrand.packet.*;
-import fr.osmium.meregrand.utils.ByteUtils;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -44,7 +43,7 @@ public class ClientHandler extends Thread {
                 if (login(authPacket))
                     createToken(authPacket);
                 else
-                    out.writeObject(new FailAuthPacket("Wrong email or password"));
+                    out.writeObject(new ErrorPacket("Wrong email or password"));
             }
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
@@ -64,8 +63,8 @@ public class ClientHandler extends Thread {
                     .sign(algorithm);
             final KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             final String publicKeyC2 = DBManager.getInstance().getPublicKey(authPacket.getTargetMail());
-            EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyC2.getBytes()); // 100% CA MARCHE PAS
-            RSAPublicKey rsaPublicKeyC2 = (RSAPublicKey) keyFactory.generatePublic(keySpec);
+            final EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyC2.getBytes()); // 100% CA MARCHE PAS
+            final RSAPublicKey rsaPublicKeyC2 = (RSAPublicKey) keyFactory.generatePublic(keySpec);
             final String ipTarget = DBManager.getInstance().getIp(authPacket.getTargetMail());
             final SendTokenPacket sendTokenPacket = new SendTokenPacket(rsaPublicKeyC2, token, ipTarget);
             out.writeObject(sendTokenPacket);
