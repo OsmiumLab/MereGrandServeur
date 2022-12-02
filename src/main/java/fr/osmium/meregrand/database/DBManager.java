@@ -3,6 +3,7 @@ package fr.osmium.meregrand.database;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class DBManager {
@@ -21,13 +22,13 @@ public class DBManager {
         return instance;
     }
 
-    public void insertInfos(String mail, String pwd) {
-        mail = Sha256.hash(mail);
+    public void insertInfos(String mail, String pwd, String publicKey) {
         pwd = Sha256.hash(pwd);
-        String request = "INSERT INTO USER(email,password) VALUES(?,?)";
+        String request = "INSERT INTO USER(email,password,publicKey) VALUES(?,?,?)";
         try (PreparedStatement statement = connect.prepareStatement(request)) {
             statement.setString(1, mail);
-            statement.setString(2, pwd);
+            statement.setString(2,pwd);
+            statement.setString(3,publicKey);
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -35,8 +36,6 @@ public class DBManager {
     }
 
     public void updateEmail(String newMail, String oldMail) {
-        newMail = Sha256.hash(newMail);
-        oldMail = Sha256.hash(oldMail);
         String request = "UPDATE User SET email=? WHERE email=?";
         try (PreparedStatement statement = connect.prepareStatement(request)) {
             statement.setString(1, newMail);
@@ -49,7 +48,6 @@ public class DBManager {
 
     public void updatePassword(String pwd, String mail) {
         pwd = Sha256.hash(pwd);
-        mail = Sha256.hash(mail);
         String request = "UPDATE User SET password=? WHERE email=?";
         try (PreparedStatement statement = connect.prepareStatement(request)) {
             statement.setString(1, pwd);
@@ -60,8 +58,21 @@ public class DBManager {
         }
     }
 
+    public String getPublicKey(String mail){
+        String request="SELECT publicKey FROM User WHERE email=?";
+        try (PreparedStatement statement = connect.prepareStatement(request)) {
+            statement.setString(1, mail);
+            try(ResultSet result=statement.executeQuery()){
+                result.next();
+                return result.getString(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public void delete(String mail) {
-        mail = Sha256.hash(mail);
         String request = "DELETE FROM User WHERE email=?";
         try (PreparedStatement statement = connect.prepareStatement(request)) {
             statement.setString(1, mail);
