@@ -1,7 +1,7 @@
 package fr.osmium.meregrand.database;
 
 
-import fr.osmium.meregrand.cipher.hash.SHA256;
+import fr.osmium.meregrand.cipher.SHA256;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

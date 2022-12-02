@@ -1,4 +1,4 @@
-package fr.osmium.meregrand.cipher.hash;
+package fr.osmium.meregrand.cipher;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
