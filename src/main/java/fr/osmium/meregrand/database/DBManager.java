@@ -84,4 +84,29 @@ public class DBManager {
         }
     }
 
+    public void updateIp(String mail, String ip){
+        String request="UPDATE User SET ipAdress=? WHERE email=?";
+        try (PreparedStatement statement = connect.prepareStatement(request)) {
+            statement.setString(1, ip);
+            statement.setString(2, mail);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String getIp(String mail){
+        String request="SELECT ipAdress FROM User WHERE email=?";
+        try (PreparedStatement statement = connect.prepareStatement(request)) {
+            statement.setString(1, mail);
+            try(ResultSet result=statement.executeQuery()){
+                result.next();
+                return result.getString(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }
