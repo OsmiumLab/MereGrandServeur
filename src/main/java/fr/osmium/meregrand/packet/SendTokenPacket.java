@@ -1,14 +1,14 @@
 package fr.osmium.meregrand.packet;
 
-public class TokenSend extends Packet{
+public class SendTokenPacket extends Packet {
 
-    private String publicKey;
-    private String token;
-    public TokenSend(String token,String publicKey) {
-        super(PacketType.TOKEN_SEND);
+    private final String publicKey;
+    private final String token;
+
+    public SendTokenPacket(String token, String publicKey) {
+        super(PacketType.SEND_TOKEN_PACKET);
         this.token = token;
         this.publicKey = publicKey;
-
     }
 
     public String getPublicKey() {

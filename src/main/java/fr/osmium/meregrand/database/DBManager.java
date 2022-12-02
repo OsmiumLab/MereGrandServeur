@@ -1,6 +1,8 @@
 package fr.osmium.meregrand.database;
 
 
+import fr.osmium.meregrand.cipher.hash.SHA256;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -23,7 +25,7 @@ public class DBManager {
     }
 
     public void insertInfos(String mail, String pwd, String publicKey) {
-        pwd = Sha256.hash(pwd);
+        pwd = SHA256.hash(pwd);
         String request = "INSERT INTO USER(email,password,publicKey) VALUES(?,?,?)";
         try (PreparedStatement statement = connect.prepareStatement(request)) {
             statement.setString(1, mail);
@@ -47,7 +49,7 @@ public class DBManager {
     }
 
     public void updatePassword(String pwd, String mail) {
-        pwd = Sha256.hash(pwd);
+        pwd = SHA256.hash(pwd);
         String request = "UPDATE User SET password=? WHERE email=?";
         try (PreparedStatement statement = connect.prepareStatement(request)) {
             statement.setString(1, pwd);

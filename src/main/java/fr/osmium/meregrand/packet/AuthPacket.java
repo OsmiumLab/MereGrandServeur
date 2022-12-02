@@ -1,4 +1,3 @@
-
 package fr.osmium.meregrand.packet;
 
 public class AuthPacket extends Packet {

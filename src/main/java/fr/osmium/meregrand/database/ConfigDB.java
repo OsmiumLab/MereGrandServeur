@@ -11,7 +11,7 @@ public class ConfigDB {
     public Connection getConnection(){
         Connection connect = null;
         try{
-            connect = DriverManager.getConnection("jdbc:sqlite:src/main/resources/DBLittleRedHood.db");
+            connect = DriverManager.getConnection("jdbc:sqlite:DBLittleRedHood.db");
         } catch (SQLException e) {
             e.printStackTrace();
         }
