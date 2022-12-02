@@ -31,9 +31,7 @@ public class ClientHandler extends Thread {
         try {
             ServiceManager.LOGGER.info("Client connected to server");
             swapPublicKeys();
-            out.writeObject("Client public key: " + clientPublicKey);
-            String s = (String) in.readObject();
-            ServiceManager.LOGGER.info(s);
+
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
